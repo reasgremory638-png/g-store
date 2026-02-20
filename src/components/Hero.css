@@ -1,0 +1,96 @@
+.hero {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  padding: 100px 20px 140px;
+  text-align: center;
+  border-radius: 0 0 50px 50px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  pointer-events: none;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -10%;
+  width: 350px;
+  height: 350px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  pointer-events: none;
+}
+
+.hero-content { position: relative; z-index: 1; }
+
+.hero-tagline {
+  color: rgba(255,255,255,0.85);
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+}
+
+.hero-title {
+  color: var(--white);
+  font-size: 52px;
+  font-weight: 900;
+  margin-bottom: 16px;
+  line-height: 1.2;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.2);
+}
+
+.hero-desc {
+  color: rgba(255,255,255,0.85);
+  font-size: 18px;
+  max-width: 600px;
+  margin: 0 auto 32px;
+  line-height: 1.8;
+}
+
+.hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--white);
+  color: var(--primary);
+  padding: 14px 36px;
+  border-radius: var(--radius-full);
+  font-size: 16px;
+  font-weight: 700;
+  transition: var(--transition);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+.hero-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+  background: #f8f9fa;
+}
+
+@media (max-width: 768px) {
+  .hero { padding: 70px 16px 110px; }
+  .hero-title { font-size: 36px; }
+  .hero-desc { font-size: 15px; }
+}
+
+@media (max-width: 480px) {
+  .hero { padding: 50px 14px 90px; }
+  .hero-title { font-size: 28px; }
+  .hero-desc { font-size: 14px; }
+  .hero-btn { padding: 12px 24px; font-size: 14px; }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .hero { padding: 40px 20px 80px; }
+  .hero-title { font-size: 28px; }
+}
