@@ -74,8 +74,7 @@ export default function SettingsTab({ onRefresh }) {
       <div className="settings-card">
         <h3 className="sc-title"><i className="fa-brands fa-whatsapp" /> واتساب</h3>
         <div className="sc-row">
-          <span>رقم واتساب الطلبات</span>
-          <span className="sc-val">+964 783 534 5474</span>
+          <span className="sc-val">0774 123 8168</span>
         </div>
       </div>
     </div>

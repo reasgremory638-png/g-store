@@ -47,7 +47,7 @@ export default function CheckoutModal({ onClose, onSuccess }) {
       const msg = `🛍️ *طلب جديد من متجر غريم*\n\n👤 الاسم: ${form.name}\n📱 الهاتف: ${form.phone}\n🏙️ المحافظة: ${form.city || 'غير محدد'}\n📍 العنوان: ${form.address || 'غير محدد'}\n\n📦 *المنتجات:*\n${items}\n\n💰 *المجموع الكلي: ${getTotal().toLocaleString()} د.ع*`
 
       clearCart()
-      window.open(`https://wa.me/9647835345474?text=${encodeURIComponent(msg)}`, '_blank')
+      window.open(`https://wa.me/9647741238168?text=${encodeURIComponent(msg)}`, '_blank')
       onSuccess('تم إرسال طلبك بنجاح! 🎉')
       onClose()
     } catch (err) {
