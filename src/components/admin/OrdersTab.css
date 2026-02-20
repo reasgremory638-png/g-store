@@ -120,3 +120,101 @@
   margin-right: auto;
 }
 .oc-delete-btn:hover { background: #fecaca; }
+.orders-admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.order-search-box {
+  flex: 1;
+  min-width: 250px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.order-search-box i {
+  position: absolute;
+  right: 14px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+.order-search-box input {
+  width: 100%;
+  padding: 10px 40px 10px 15px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-color);
+  background: var(--white);
+  font-size: 14px;
+  color: var(--text-main);
+  transition: var(--transition);
+}
+.order-search-box input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.oc-edit-link {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-right: 15px;
+}
+.oc-edit-link:hover { text-decoration: underline; }
+
+.oc-edit-form { padding: 5px; }
+.oc-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.oc-edit-grid input {
+  padding: 8px 12px;
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  background: #f9fafb;
+}
+.oc-edit-btns { display: flex; gap: 8px; }
+.oc-save-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 700;
+}
+.oc-cancel-btn {
+  background: #f0f2f5;
+  color: var(--text-main);
+  border: none;
+  padding: 8px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.oc-status-btn.highlighted {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+.oc-status-btn.highlighted:hover {
+  background: var(--primary-dark);
+}
+
+@media (max-width: 768px) {
+  .orders-admin-header { flex-direction: column; align-items: stretch; gap: 12px; }
+}
