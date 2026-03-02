@@ -25,7 +25,17 @@ export default function Home() {
   useEffect(() => {
     setLoading(true)
     try {
-      const data = fetchProducts({ activeOnly: true })
+      let data = fetchProducts({ activeOnly: true })
+      
+      // إذا كان المتجر فارغاً، أضف عينات تجريبية
+      if (data.length === 0) {
+        import('../lib/storage').then(m => {
+          m.insertProduct({ title: 'مصحف تهجد فاخر', price: 25000, category: 'مصاحف', image: 'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=500', active: true })
+          m.insertProduct({ title: 'بخور عود ملكي', price: 15000, category: 'بخور', image: 'https://images.unsplash.com/photo-1595990000000-000000000000?q=80&w=500', active: true })
+          window.location.reload()
+        })
+      }
+      
       setProducts(data)
     } catch (err) {
       setError(err.message)
