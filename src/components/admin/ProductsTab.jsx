@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { supabase } from '../../lib/supabase'
+import { insertProduct, updateProduct, deleteProduct } from '../../lib/storage'
 import './ProductsTab.css'
 
 function AddProductForm({ onRefresh }) {
@@ -27,7 +27,7 @@ function AddProductForm({ onRefresh }) {
     e.preventDefault()
     if (!form.title || !form.price) return
     setSubmitting(true)
-    const { error } = await supabase.from('stickers').insert([{
+    insertProduct({
       title: form.title,
       price: parseInt(form.price),
       category: form.category,
@@ -35,13 +35,11 @@ function AddProductForm({ onRefresh }) {
       description: form.description,
       active: form.active,
       image_url: imageBase64
-    }])
-    if (!error) {
-      setForm({ title: '', price: '', category: '', quantity: 100, description: '', active: true })
-      setImagePreview('')
-      setImageBase64('')
-      onRefresh()
-    }
+    })
+    setForm({ title: '', price: '', category: '', quantity: 100, description: '', active: true })
+    setImagePreview('')
+    setImageBase64('')
+    onRefresh()
     setSubmitting(false)
   }
 
@@ -98,13 +96,13 @@ function ProductRow({ product, onRefresh }) {
 
   async function handleSave() {
     setSaving(true)
-    await supabase.from('stickers').update({
+    updateProduct(product.id, {
       title: form.title,
       price: parseInt(form.price),
       category: form.category,
       quantity: parseInt(form.quantity),
       description: form.description
-    }).eq('id', product.id)
+    })
     setSaving(false)
     setEditing(false)
     onRefresh()
@@ -112,7 +110,7 @@ function ProductRow({ product, onRefresh }) {
 
   async function handleDelete() {
     if (!confirm(`حذف "${product.title}"؟`)) return
-    await supabase.from('stickers').delete().eq('id', product.id)
+    deleteProduct(product.id)
     onRefresh()
   }
 

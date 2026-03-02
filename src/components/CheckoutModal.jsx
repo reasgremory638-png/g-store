@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useCart } from '../context/CartContext'
-import { supabase } from '../lib/supabase'
+import { insertOrder } from '../lib/storage'
 import './CheckoutModal.css'
 
 const IRAQI_CITIES = [
@@ -9,9 +9,12 @@ const IRAQI_CITIES = [
   'الديوانية', 'صلاح الدين', 'دهوك', 'المثنى', 'واسط'
 ]
 
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
+
 export default function CheckoutModal({ onClose, onSuccess }) {
   const { cart, getTotal, clearCart } = useCart()
-  const [form, setForm] = useState({ name: '', phone: '', city: '', address: '' })
+  const [form, setForm] = useState({ name: '', phone: '', city: '', address: '', notes: '' })
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
 
@@ -29,6 +32,7 @@ export default function CheckoutModal({ onClose, onSuccess }) {
 
     setLoading(true)
     try {
+      // 1. حفظ الطلب في localStorage → يظهر فوراً في الداش بورد
       const orderData = {
         items: cart.map(item => ({ id: item.id, title: item.title, price: item.price, qty: item.qty })),
         total: getTotal(),
@@ -36,19 +40,31 @@ export default function CheckoutModal({ onClose, onSuccess }) {
         phone: form.phone,
         city: form.city,
         address: form.address,
+        notes: form.notes,
         status: 'pending'
       }
+      const newOrder = insertOrder(orderData)
 
-      const { error } = await supabase.from('orders').insert([orderData])
-      if (error) throw error
+      // إرسال حدث storage لتحديث الداش بورد في نفس المتصفح
+      window.dispatchEvent(new Event('g_orders_updated'))
 
-      // Build WhatsApp message
-      const items = cart.map(i => `• ${i.title} × ${i.qty} = ${(i.price * i.qty).toLocaleString()} د.ع`).join('\n')
-      const msg = `🛍️ *طلب جديد من متجر غريم*\n\n👤 الاسم: ${form.name}\n📱 الهاتف: ${form.phone}\n🏙️ المحافظة: ${form.city || 'غير محدد'}\n📍 العنوان: ${form.address || 'غير محدد'}\n\n📦 *المنتجات:*\n${items}\n\n💰 *المجموع الكلي: ${getTotal().toLocaleString()} د.ع*`
+      // 2. إرسال إيميل عبر Resend (Supabase Edge Function)
+      try {
+        await fetch(`${SUPABASE_URL}/functions/v1/send-order-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({ order: newOrder }),
+        })
+      } catch (emailErr) {
+        // الإيميل اختياري — الطلب يُحفظ حتى لو فشل الإيميل
+        console.warn('فشل إرسال الإيميل:', emailErr)
+      }
 
       clearCart()
-      window.open(`https://wa.me/9647741238168?text=${encodeURIComponent(msg)}`, '_blank')
-      onSuccess('تم إرسال طلبك بنجاح! 🎉')
+      onSuccess('تم استلام طلبك بنجاح! سيتم التواصل معك قريباً ✅')
       onClose()
     } catch (err) {
       console.error(err)
@@ -116,6 +132,16 @@ export default function CheckoutModal({ onClose, onSuccess }) {
             />
           </div>
 
+          <div className="form-group">
+            <label>ملاحظات إضافية</label>
+            <textarea
+              placeholder="أي تعليمات خاصة..."
+              value={form.notes}
+              onChange={e => handleChange('notes', e.target.value)}
+              rows={2}
+            />
+          </div>
+
           <div className="checkout-total">
             <span>المجموع: </span>
             <strong>{getTotal().toLocaleString()} د.ع</strong>
@@ -123,9 +149,9 @@ export default function CheckoutModal({ onClose, onSuccess }) {
 
           <button type="submit" className="submit-order-btn" disabled={loading}>
             {loading ? (
-              <>جاري إرسال الطلب...</>
+              <><i className="fa-solid fa-spinner fa-spin" /> جاري إرسال الطلب...</>
             ) : (
-              <><i className="fa-brands fa-whatsapp" /> تأكيد وإرسال عبر واتساب</>
+              <><i className="fa-solid fa-paper-plane" /> تأكيد الطلب</>
             )}
           </button>
         </form>

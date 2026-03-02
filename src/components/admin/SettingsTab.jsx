@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { supabase } from '../../lib/supabase'
+import { insertManyProducts } from '../../lib/storage'
 import './SettingsTab.css'
 
 const SAMPLE_PRODUCTS = [
@@ -28,17 +28,16 @@ const SAMPLE_PRODUCTS = [
 export default function SettingsTab({ onRefresh }) {
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState('')
-  const [url] = useState(import.meta.env.VITE_SUPABASE_URL || 'غير محدد')
 
-  async function loadSamples() {
+  function loadSamples() {
     if (!confirm('سيتم إضافة 20 منتج نموذجي. هل أنت متأكد؟')) return
     setLoading(true)
-    const { error } = await supabase.from('stickers').insert(SAMPLE_PRODUCTS)
-    if (error) {
-      setMsg('خطأ: ' + error.message)
-    } else {
+    try {
+      insertManyProducts(SAMPLE_PRODUCTS)
       setMsg('تم تحميل 20 منتج نموذجي بنجاح ✅')
       onRefresh()
+    } catch (err) {
+      setMsg('خطأ: ' + err.message)
     }
     setLoading(false)
     setTimeout(() => setMsg(''), 4000)
@@ -49,12 +48,8 @@ export default function SettingsTab({ onRefresh }) {
       <div className="settings-card">
         <h3 className="sc-title"><i className="fa-solid fa-database" /> قاعدة البيانات</h3>
         <div className="sc-row">
-          <span>Supabase URL</span>
-          <span className="sc-val">{url}</span>
-        </div>
-        <div className="sc-row">
           <span>وضع التخزين</span>
-          <span className="sc-val sc-green">Supabase PostgreSQL</span>
+          <span className="sc-val sc-green">localStorage (محلي)</span>
         </div>
         <div className="sc-row">
           <span>حالة الاتصال</span>

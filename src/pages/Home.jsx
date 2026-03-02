@@ -8,7 +8,7 @@ import CheckoutModal from '../components/CheckoutModal'
 import Toast from '../components/Toast'
 import Footer from '../components/Footer'
 import { useCart } from '../context/CartContext'
-import { supabase } from '../lib/supabase'
+import { fetchProducts } from '../lib/storage'
 import './Home.css'
 
 export default function Home() {
@@ -23,22 +23,14 @@ export default function Home() {
   const { cartCount } = useCart()
 
   useEffect(() => {
-    async function fetchProducts() {
-      setLoading(true)
-      const { data, error } = await supabase
-        .from('stickers')
-        .select('*')
-        .eq('active', true)
-        .order('created_at', { ascending: false })
-
-      if (error) {
-        setError(error.message)
-      } else {
-        setProducts(data || [])
-      }
-      setLoading(false)
+    setLoading(true)
+    try {
+      const data = fetchProducts({ activeOnly: true })
+      setProducts(data)
+    } catch (err) {
+      setError(err.message)
     }
-    fetchProducts()
+    setLoading(false)
   }, [])
 
   const categories = useMemo(() => {

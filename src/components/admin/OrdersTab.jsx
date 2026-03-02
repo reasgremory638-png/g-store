@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { supabase } from '../../lib/supabase'
+import { updateOrder, deleteOrder } from '../../lib/storage'
 import './OrdersTab.css'
 
 const STATUS_LABELS = { pending: 'معلّق', ready: 'جاهز', delivered: 'مُسلَّم' }
@@ -22,19 +22,15 @@ export default function OrdersTab({ orders, setOrders }) {
     return matchFilter && matchSearch
   })
 
-  async function changeStatus(id, status) {
-    const { error } = await supabase.from('orders').update({ status }).eq('id', id)
-    if (!error) {
-      setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o))
-    }
+  function changeStatus(id, status) {
+    updateOrder(id, { status })
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o))
   }
 
-  async function deleteOrder(id) {
+  function handleDeleteOrder(id) {
     if (!confirm('حذف هذا الطلب؟')) return
-    const { error } = await supabase.from('orders').delete().eq('id', id)
-    if (!error) {
-      setOrders(prev => prev.filter(o => o.id !== id))
-    }
+    deleteOrder(id)
+    setOrders(prev => prev.filter(o => o.id !== id))
   }
 
   function startEdit(order) {
@@ -42,12 +38,10 @@ export default function OrdersTab({ orders, setOrders }) {
     setEditForm({ name: order.name, phone: order.phone || '', city: order.city || '', address: order.address || '' })
   }
 
-  async function saveEdit(id) {
-    const { error } = await supabase.from('orders').update(editForm).eq('id', id)
-    if (!error) {
-      setOrders(prev => prev.map(o => o.id === id ? { ...o, ...editForm } : o))
-      setEditingId(null)
-    }
+  function saveEdit(id) {
+    updateOrder(id, editForm)
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, ...editForm } : o))
+    setEditingId(null)
   }
 
   function count(s) { return s === 'all' ? orders.length : orders.filter(o => o.status === s).length }
@@ -154,7 +148,7 @@ export default function OrdersTab({ orders, setOrders }) {
                     {order.status !== 'pending' && (
                       <button className="oc-status-btn" onClick={() => changeStatus(order.id, 'pending')}>إرجاع للمعلّق</button>
                     )}
-                    <button className="oc-delete-btn" onClick={() => deleteOrder(order.id)}>
+                    <button className="oc-delete-btn" onClick={() => handleDeleteOrder(order.id)}>
                       <i className="fa-solid fa-trash" />
                     </button>
                   </div>

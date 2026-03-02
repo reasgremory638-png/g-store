@@ -10,38 +10,22 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
-  async function fetchProfile(userId) {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('is_admin')
-      .eq('id', userId)
-      .single()
-
-    if (error || !data) {
-      // Create profile if doesn't exist
-      await supabase.from('profiles').upsert({ id: userId, is_admin: true })
-      setIsAdmin(true)
-    } else {
-      setIsAdmin(data.is_admin)
-    }
-  }
-
+  // كل مستخدم مسجّل في Supabase يُعتبر admin
   useEffect(() => {
-    // Get initial session
+    // جلب الجلسة الحالية عند التحميل
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user)
-        fetchProfile(session.user.id).finally(() => setLoading(false))
-      } else {
-        setLoading(false)
+        setIsAdmin(true)
       }
+      setLoading(false)
     })
 
-    // Listen for auth changes
+    // الاستماع لأي تغيير في حالة الدخول
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setUser(session.user)
-        fetchProfile(session.user.id)
+        setIsAdmin(true)
       } else {
         setUser(null)
         setIsAdmin(false)
@@ -55,7 +39,8 @@ export function AuthProvider({ children }) {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw error
     if (data.user) {
-      await fetchProfile(data.user.id)
+      setUser(data.user)
+      setIsAdmin(true)
       navigate('/admin')
     }
   }

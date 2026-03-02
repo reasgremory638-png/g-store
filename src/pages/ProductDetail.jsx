@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import { fetchProductById } from '../lib/storage'
 import { useCart } from '../context/CartContext'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
@@ -16,16 +16,9 @@ export default function ProductDetail() {
   const [toast, setToast] = useState('')
 
   useEffect(() => {
-    async function fetchProduct() {
-      const { data, error } = await supabase
-        .from('stickers')
-        .select('*')
-        .eq('id', id)
-        .single()
-      if (!error) setProduct(data)
-      setLoading(false)
-    }
-    fetchProduct()
+    const data = fetchProductById(id)
+    setProduct(data)
+    setLoading(false)
   }, [id])
 
   if (loading) {
