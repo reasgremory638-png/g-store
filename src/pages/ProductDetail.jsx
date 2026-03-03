@@ -16,9 +16,12 @@ export default function ProductDetail() {
   const [toast, setToast] = useState('')
 
   useEffect(() => {
-    const data = fetchProductById(id)
-    setProduct(data)
-    setLoading(false)
+    async function loadProduct() {
+      const data = await fetchProductById(id)
+      setProduct(data)
+      setLoading(false)
+    }
+    loadProduct()
   }, [id])
 
   if (loading) {

@@ -32,7 +32,7 @@ export default function CheckoutModal({ onClose, onSuccess }) {
 
     setLoading(true)
     try {
-      // 1. حفظ الطلب في localStorage → يظهر فوراً في الداش بورد
+      // 1. حفظ الطلب في Supabase → يظهر فوراً في الداش بورد
       const orderData = {
         items: cart.map(item => ({ id: item.id, title: item.title, price: item.price, qty: item.qty })),
         total: getTotal(),
@@ -43,7 +43,7 @@ export default function CheckoutModal({ onClose, onSuccess }) {
         notes: form.notes,
         status: 'pending'
       }
-      const newOrder = insertOrder(orderData)
+      const newOrder = await insertOrder(orderData)
 
       // إرسال حدث storage لتحديث الداش بورد في نفس المتصفح
       window.dispatchEvent(new Event('g_orders_updated'))
@@ -91,8 +91,10 @@ export default function CheckoutModal({ onClose, onSuccess }) {
 
         <form onSubmit={handleSubmit} className="checkout-form">
           <div className="form-group">
-            <label>الاسم الكامل *</label>
+            <label htmlFor="customerName">الاسم الكامل *</label>
             <input
+              id="customerName"
+              name="customerName"
               type="text"
               placeholder="أدخل اسمك الكامل"
               value={form.name}
@@ -103,8 +105,10 @@ export default function CheckoutModal({ onClose, onSuccess }) {
           </div>
 
           <div className="form-group">
-            <label>رقم الهاتف *</label>
+            <label htmlFor="customerPhone">رقم الهاتف *</label>
             <input
+              id="customerPhone"
+              name="customerPhone"
               type="tel"
               placeholder="07XXXXXXXXX"
               value={form.phone}
@@ -115,16 +119,18 @@ export default function CheckoutModal({ onClose, onSuccess }) {
           </div>
 
           <div className="form-group">
-            <label>المحافظة</label>
-            <select value={form.city} onChange={e => handleChange('city', e.target.value)}>
+            <label htmlFor="customerCity">المحافظة</label>
+            <select id="customerCity" name="customerCity" value={form.city} onChange={e => handleChange('city', e.target.value)}>
               <option value="">اختر المحافظة</option>
               {IRAQI_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
 
           <div className="form-group">
-            <label>العنوان التفصيلي</label>
+            <label htmlFor="customerAddress">العنوان التفصيلي</label>
             <input
+              id="customerAddress"
+              name="customerAddress"
               type="text"
               placeholder="الحي، الشارع، رقم البيت..."
               value={form.address}
@@ -133,8 +139,10 @@ export default function CheckoutModal({ onClose, onSuccess }) {
           </div>
 
           <div className="form-group">
-            <label>ملاحظات إضافية</label>
+            <label htmlFor="customerNotes">ملاحظات إضافية</label>
             <textarea
+              id="customerNotes"
+              name="customerNotes"
               placeholder="أي تعليمات خاصة..."
               value={form.notes}
               onChange={e => handleChange('notes', e.target.value)}

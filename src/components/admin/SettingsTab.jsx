@@ -29,11 +29,11 @@ export default function SettingsTab({ onRefresh }) {
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState('')
 
-  function loadSamples() {
+  async function loadSamples() {
     if (!confirm('سيتم إضافة 20 منتج نموذجي. هل أنت متأكد؟')) return
     setLoading(true)
     try {
-      insertManyProducts(SAMPLE_PRODUCTS)
+      await insertManyProducts(SAMPLE_PRODUCTS)
       setMsg('تم تحميل 20 منتج نموذجي بنجاح ✅')
       onRefresh()
     } catch (err) {
@@ -49,7 +49,7 @@ export default function SettingsTab({ onRefresh }) {
         <h3 className="sc-title"><i className="fa-solid fa-database" /> قاعدة البيانات</h3>
         <div className="sc-row">
           <span>وضع التخزين</span>
-          <span className="sc-val sc-green">localStorage (محلي)</span>
+          <span className="sc-val sc-green">Supabase (PostgreSQL)</span>
         </div>
         <div className="sc-row">
           <span>حالة الاتصال</span>

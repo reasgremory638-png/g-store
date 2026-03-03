@@ -27,19 +27,24 @@ function AddProductForm({ onRefresh }) {
     e.preventDefault()
     if (!form.title || !form.price) return
     setSubmitting(true)
-    insertProduct({
-      title: form.title,
-      price: parseInt(form.price),
-      category: form.category,
-      quantity: parseInt(form.quantity),
-      description: form.description,
-      active: form.active,
-      image_url: imageBase64
-    })
-    setForm({ title: '', price: '', category: '', quantity: 100, description: '', active: true })
-    setImagePreview('')
-    setImageBase64('')
-    onRefresh()
+    try {
+      await insertProduct({
+        title: form.title,
+        price: parseInt(form.price),
+        category: form.category,
+        quantity: parseInt(form.quantity),
+        description: form.description,
+        active: form.active,
+        image_url: imageBase64
+      })
+      setForm({ title: '', price: '', category: '', quantity: 100, description: '', active: true })
+      setImagePreview('')
+      setImageBase64('')
+      onRefresh()
+    } catch (err) {
+      console.error(err)
+      alert('فشل إضافة المنتج')
+    }
     setSubmitting(false)
   }
 
@@ -96,22 +101,32 @@ function ProductRow({ product, onRefresh }) {
 
   async function handleSave() {
     setSaving(true)
-    updateProduct(product.id, {
-      title: form.title,
-      price: parseInt(form.price),
-      category: form.category,
-      quantity: parseInt(form.quantity),
-      description: form.description
-    })
+    try {
+      await updateProduct(product.id, {
+        title: form.title,
+        price: parseInt(form.price),
+        category: form.category,
+        quantity: parseInt(form.quantity),
+        description: form.description
+      })
+      setEditing(false)
+      onRefresh()
+    } catch (err) {
+      console.error(err)
+      alert('فشل حفظ التعديل')
+    }
     setSaving(false)
-    setEditing(false)
-    onRefresh()
   }
 
   async function handleDelete() {
     if (!confirm(`حذف "${product.title}"؟`)) return
-    deleteProduct(product.id)
-    onRefresh()
+    try {
+      await deleteProduct(product.id)
+      onRefresh()
+    } catch (err) {
+      console.error(err)
+      alert('فشل حذف المنتج')
+    }
   }
 
   return (

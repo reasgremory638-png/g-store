@@ -47,10 +47,12 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="login-field">
-            <label>البريد الإلكتروني</label>
+            <label htmlFor="loginEmail">البريد الإلكتروني</label>
             <div className="login-input-wrap">
               <i className="fa-solid fa-envelope login-field-icon" />
               <input
+                id="loginEmail"
+                name="email"
                 type="email"
                 placeholder="admin@gharim.com"
                 value={email}
@@ -61,10 +63,12 @@ export default function Login() {
             </div>
           </div>
           <div className="login-field">
-            <label>كلمة المرور</label>
+            <label htmlFor="loginPassword">كلمة المرور</label>
             <div className="login-input-wrap">
               <i className="fa-solid fa-lock login-field-icon" />
               <input
+                id="loginPassword"
+                name="password"
                 type="password"
                 placeholder="••••••••"
                 value={password}

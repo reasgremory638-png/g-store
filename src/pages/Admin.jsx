@@ -10,10 +10,11 @@ export default function Admin() {
   const [loading, setLoading] = useState(true)
   const [newOrderAlert, setNewOrderAlert] = useState(false)
 
-  const fetchAll = useCallback(() => {
+  const fetchAll = useCallback(async () => {
     setLoading(true)
-    setProducts(fetchProducts())
-    setOrders(fetchOrders())
+    const [p, o] = await Promise.all([fetchProducts(), fetchOrders()])
+    setProducts(p)
+    setOrders(o)
     setLoading(false)
   }, [])
 
@@ -21,8 +22,8 @@ export default function Admin() {
     fetchAll()
 
     // تحديث عند وصول طلب جديد من نفس التبويب (checkout modal)
-    const handleNewOrder = () => {
-      setOrders(fetchOrders())
+    const handleNewOrder = async () => {
+      setOrders(await fetchOrders())
       setNewOrderAlert(true)
       setTimeout(() => setNewOrderAlert(false), 4000)
     }

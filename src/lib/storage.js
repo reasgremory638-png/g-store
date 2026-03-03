@@ -1,110 +1,67 @@
-// localStorage-based data layer (replaces Supabase)
-
-const PRODUCTS_KEY = 'g_products'
-const ORDERS_KEY = 'g_orders'
-
-function getProducts() {
-  try {
-    return JSON.parse(localStorage.getItem(PRODUCTS_KEY) || '[]')
-  } catch {
-    return []
-  }
-}
-
-function saveProducts(products) {
-  localStorage.setItem(PRODUCTS_KEY, JSON.stringify(products))
-}
-
-function getOrders() {
-  try {
-    return JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]')
-  } catch {
-    return []
-  }
-}
-
-function saveOrders(orders) {
-  localStorage.setItem(ORDERS_KEY, JSON.stringify(orders))
-}
-
-function generateId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2)
-}
+import { supabase } from './supabase'
 
 // ── Products ──────────────────────────────────────────────
-export function fetchProducts({ activeOnly = false } = {}) {
-  let products = getProducts()
-  if (activeOnly) products = products.filter(p => p.active)
-  return [...products].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-}
-
-export function fetchProductById(id) {
-  return getProducts().find(p => p.id === id) || null
-}
-
-export function insertProduct(data) {
-  const products = getProducts()
-  const newProduct = {
-    ...data,
-    id: generateId(),
-    created_at: new Date().toISOString()
+export async function fetchProducts({ activeOnly = false } = {}) {
+  let query = supabase.from('products').select('*').order('created_at', { ascending: false })
+  if (activeOnly) {
+    query = query.eq('active', true)
   }
-  products.push(newProduct)
-  saveProducts(products)
-  return newProduct
+  const { data, error } = await query
+  if (error) throw error
+  return data || []
 }
 
-export function updateProduct(id, data) {
-  const products = getProducts()
-  const idx = products.findIndex(p => p.id === id)
-  if (idx === -1) return null
-  products[idx] = { ...products[idx], ...data }
-  saveProducts(products)
-  return products[idx]
+export async function fetchProductById(id) {
+  const { data, error } = await supabase.from('products').select('*').eq('id', id).single()
+  if (error) {
+    console.error(error)
+    return null
+  }
+  return data
 }
 
-export function deleteProduct(id) {
-  const products = getProducts().filter(p => p.id !== id)
-  saveProducts(products)
+export async function insertProduct(productData) {
+  const { data, error } = await supabase.from('products').insert(productData).select().single()
+  if (error) throw error
+  return data
 }
 
-export function insertManyProducts(items) {
-  const products = getProducts()
-  const newItems = items.map(item => ({
-    ...item,
-    id: generateId(),
-    created_at: new Date().toISOString()
-  }))
-  saveProducts([...products, ...newItems])
+export async function updateProduct(id, productData) {
+  const { data, error } = await supabase.from('products').update(productData).eq('id', id).select().single()
+  if (error) throw error
+  return data
+}
+
+export async function deleteProduct(id) {
+  const { error } = await supabase.from('products').delete().eq('id', id)
+  if (error) throw error
+}
+
+export async function insertManyProducts(items) {
+  const { error } = await supabase.from('products').insert(items)
+  if (error) throw error
 }
 
 // ── Orders ───────────────────────────────────────────────
-export function fetchOrders() {
-  return [...getOrders()].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+export async function fetchOrders() {
+  const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false })
+  if (error) throw error
+  return data || []
 }
 
-export function insertOrder(data) {
-  const orders = getOrders()
-  const newOrder = {
-    ...data,
-    id: generateId(),
-    created_at: new Date().toISOString()
-  }
-  orders.push(newOrder)
-  saveOrders(orders)
-  return newOrder
+export async function insertOrder(orderData) {
+  const { data, error } = await supabase.from('orders').insert(orderData).select().single()
+  if (error) throw error
+  return data
 }
 
-export function updateOrder(id, data) {
-  const orders = getOrders()
-  const idx = orders.findIndex(o => o.id === id)
-  if (idx === -1) return null
-  orders[idx] = { ...orders[idx], ...data }
-  saveOrders(orders)
-  return orders[idx]
+export async function updateOrder(id, orderData) {
+  const { data, error } = await supabase.from('orders').update(orderData).eq('id', id).select().single()
+  if (error) throw error
+  return data
 }
 
-export function deleteOrder(id) {
-  const orders = getOrders().filter(o => o.id !== id)
-  saveOrders(orders)
+export async function deleteOrder(id) {
+  const { error } = await supabase.from('orders').delete().eq('id', id)
+  if (error) throw error
 }

@@ -22,15 +22,25 @@ export default function OrdersTab({ orders, setOrders }) {
     return matchFilter && matchSearch
   })
 
-  function changeStatus(id, status) {
-    updateOrder(id, { status })
-    setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o))
+  async function changeStatus(id, status) {
+    try {
+      await updateOrder(id, { status })
+      setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o))
+    } catch (err) {
+      console.error(err)
+      alert('فشل تغيير حالة الطلب')
+    }
   }
 
-  function handleDeleteOrder(id) {
+  async function handleDeleteOrder(id) {
     if (!confirm('حذف هذا الطلب؟')) return
-    deleteOrder(id)
-    setOrders(prev => prev.filter(o => o.id !== id))
+    try {
+      await deleteOrder(id)
+      setOrders(prev => prev.filter(o => o.id !== id))
+    } catch (err) {
+      console.error(err)
+      alert('فشل حذف الطلب')
+    }
   }
 
   function startEdit(order) {
@@ -38,10 +48,15 @@ export default function OrdersTab({ orders, setOrders }) {
     setEditForm({ name: order.name, phone: order.phone || '', city: order.city || '', address: order.address || '' })
   }
 
-  function saveEdit(id) {
-    updateOrder(id, editForm)
-    setOrders(prev => prev.map(o => o.id === id ? { ...o, ...editForm } : o))
-    setEditingId(null)
+  async function saveEdit(id) {
+    try {
+      await updateOrder(id, editForm)
+      setOrders(prev => prev.map(o => o.id === id ? { ...o, ...editForm } : o))
+      setEditingId(null)
+    } catch (err) {
+      console.error(err)
+      alert('فشل حفظ بيانات الطلب')
+    }
   }
 
   function count(s) { return s === 'all' ? orders.length : orders.filter(o => o.status === s).length }
