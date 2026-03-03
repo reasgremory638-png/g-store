@@ -5,12 +5,24 @@ import './ProductCard.css'
 
 export default function ProductCard({ product }) {
   const [qty, setQty] = useState(1)
+  const [added, setAdded] = useState(false)
   const { addToCart } = useCart()
   const outOfStock = product.quantity === 0
 
-  function handleAdd() {
+  function handleAdd(e) {
+    e.preventDefault()
+    e.stopPropagation()
     if (outOfStock) return
     addToCart(product, qty)
+    setAdded(true)
+    setTimeout(() => setAdded(false), 1500)
+  }
+
+  function handleQtyChange(e, delta) {
+    e.preventDefault()
+    e.stopPropagation()
+    if (delta === -1) setQty(q => Math.max(1, q - 1))
+    else setQty(q => Math.min(product.quantity, q + 1))
   }
 
   return (
@@ -42,21 +54,25 @@ export default function ProductCard({ product }) {
 
         {!outOfStock ? (
           <>
-            <div className="qty-control">
-              <button className="qty-btn" onClick={() => setQty(q => Math.max(1, q - 1))}>-</button>
+            <div className="qty-control" onClick={e => e.stopPropagation()}>
+              <button className="qty-btn" onClick={e => handleQtyChange(e, -1)}>-</button>
               <input
                 type="number"
                 className="qty-input"
                 value={qty}
                 min="1"
                 max={product.quantity}
-                onChange={e => setQty(Math.max(1, parseInt(e.target.value) || 1))}
+                onChange={e => { e.stopPropagation(); setQty(Math.max(1, parseInt(e.target.value) || 1)) }}
+                onClick={e => e.stopPropagation()}
               />
-              <button className="qty-btn" onClick={() => setQty(q => Math.min(product.quantity, q + 1))}>+</button>
+              <button className="qty-btn" onClick={e => handleQtyChange(e, 1)}>+</button>
             </div>
-            <button className="add-to-cart-btn" onClick={handleAdd}>
-              <i className="fa-solid fa-bag-shopping" />
-              أضف للعلاگه
+            <button
+              className={`add-to-cart-btn ${added ? 'added' : ''}`}
+              onClick={handleAdd}
+            >
+              <i className={`fa-solid ${added ? 'fa-check' : 'fa-bag-shopping'}`} />
+              {added ? 'تمت الإضافة ✓' : 'أضف للعلاگه'}
             </button>
           </>
         ) : (
@@ -68,3 +84,4 @@ export default function ProductCard({ product }) {
     </div>
   )
 }
+
