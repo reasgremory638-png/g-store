@@ -50,9 +50,14 @@ export async function fetchOrders() {
 }
 
 export async function insertOrder(orderData) {
-  const { data, error } = await supabase.from('orders').insert(orderData).select().single()
+  // توليد معرّف محلي للطلب لتجنب مشاكل قراءة البيانات (RLS) للمستخدم المجهول
+  const id = crypto.randomUUID()
+  const payload = { ...orderData, id }
+  
+  const { error } = await supabase.from('orders').insert(payload)
   if (error) throw error
-  return data
+  
+  return { ...payload, created_at: new Date().toISOString() }
 }
 
 export async function updateOrder(id, orderData) {
