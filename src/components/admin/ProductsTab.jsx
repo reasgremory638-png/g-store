@@ -94,6 +94,7 @@ function AddProductForm({ onRefresh }) {
 
 function ProductRow({ product, onRefresh }) {
   const [editing, setEditing] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const [form, setForm] = useState({ title: product.title, price: product.price, category: product.category || '', quantity: product.quantity, description: product.description || '' })
   const [saving, setSaving] = useState(false)
 
@@ -119,7 +120,6 @@ function ProductRow({ product, onRefresh }) {
   }
 
   async function handleDelete() {
-    if (!confirm(`حذف "${product.title}"؟`)) return
     try {
       await deleteProduct(product.id)
       onRefresh()
@@ -164,7 +164,15 @@ function ProductRow({ product, onRefresh }) {
       ) : (
         <div className="pr-actions">
           <button className="pr-edit-btn" onClick={() => setEditing(true)}><i className="fa-solid fa-pen" /> تعديل</button>
-          <button className="pr-delete-btn" onClick={handleDelete}><i className="fa-solid fa-trash" /> حذف</button>
+          {!confirmDelete ? (
+            <button className="pr-delete-btn" onClick={() => setConfirmDelete(true)}><i className="fa-solid fa-trash" /> حذف</button>
+          ) : (
+            <div style={{display:'flex', gap:'5px', alignItems:'center'}}>
+              <span style={{fontSize:'12px', color:'var(--danger)', fontWeight:'bold'}}>متأكد؟</span>
+              <button className="pr-delete-btn" style={{background:'var(--danger)', color:'white', padding:'4px 10px'}} onClick={handleDelete}>نعم</button>
+              <button className="pr-cancel-btn" style={{padding:'4px 10px'}} onClick={() => setConfirmDelete(false)}>لا</button>
+            </div>
+          )}
         </div>
       )}
     </div>

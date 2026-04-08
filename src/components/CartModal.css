@@ -123,7 +123,7 @@
   font-size: 15px;
   transition: var(--transition);
 }
-.cart-item-delete:hover { transform: scale(1.2); }
+.cart-item-delete:hover { opacity: 0.7; }
 
 .cart-footer {
   border-top: 1px solid #f0f2f5;
