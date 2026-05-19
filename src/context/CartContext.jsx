@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react'
+import { fetchProductsByIds } from '../lib/storage'
 
 const CartContext = createContext({})
 
@@ -15,7 +16,48 @@ export function CartProvider({ children }) {
   })
 
   useEffect(() => {
-    localStorage.setItem(CART_KEY, JSON.stringify(cart))
+    async function refreshCartDetails() {
+      if (cart.length === 0) return
+      try {
+        const ids = cart.map(item => item.id)
+        const products = await fetchProductsByIds(ids)
+        if (!products || products.length === 0) return
+
+        setCart(prev => {
+          return prev.map(item => {
+            const dbProduct = products.find(p => p.id === item.id)
+            if (dbProduct) {
+              return { ...dbProduct, qty: item.qty }
+            }
+            return item
+          })
+        })
+      } catch (err) {
+        console.error('Failed to refresh cart details:', err)
+      }
+    }
+    refreshCartDetails()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    const serialized = cart.map(item => {
+      const cleanItem = {
+        id: item.id,
+        title: item.title,
+        price: item.price,
+        qty: item.qty
+      }
+      if (item.image_url && !item.image_url.startsWith('data:')) {
+        cleanItem.image_url = item.image_url
+      }
+      return cleanItem
+    })
+    try {
+      localStorage.setItem(CART_KEY, JSON.stringify(serialized))
+    } catch (err) {
+      console.error('Failed to save cart to localStorage:', err)
+    }
   }, [cart])
 
   const cartCount = cart.reduce((sum, item) => sum + item.qty, 0)

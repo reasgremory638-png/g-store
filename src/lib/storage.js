@@ -20,6 +20,16 @@ export async function fetchProductById(id) {
   return data
 }
 
+export async function fetchProductsByIds(ids) {
+  if (!ids || ids.length === 0) return []
+  const { data, error } = await supabase.from('products').select('*').in('id', ids)
+  if (error) {
+    console.error(error)
+    return []
+  }
+  return data || []
+}
+
 export async function insertProduct(productData) {
   const { data, error } = await supabase.from('products').insert(productData).select().single()
   if (error) throw error
